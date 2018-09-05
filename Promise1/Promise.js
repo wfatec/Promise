@@ -26,7 +26,7 @@ var MyPromise = function (fulfillFunc) {
     this.status = PENDING;
     this.pending = [];
     if (typeof fulfillFunc === 'function') {
-        fulfillFunc.bind(this,this.resolve,this.reject)
+        fulfillFunc(this.resolve,this.reject)
     } else {
         this.reject('The input is not function!')
     }
@@ -35,10 +35,13 @@ var MyPromise = function (fulfillFunc) {
 
 MyPromise.prototype.resolve = function (_value) {
     console.log('resolve1: ',_value)
+    console.log('pending: ',this.pending);
+    
     if (this.status === PENDING) {
         this.value = ref(_value);
         for (var i = 0, ii = this.pending.length; i < ii; i++) {
             // XXX
+            console.log('pending1: ',this.pending);
             enqueue(function () {
                 this.value.then.apply(this.value, this.pending[i]);
             });
@@ -63,6 +66,8 @@ MyPromise.prototype.then = function (_callback, _errback) {
     };
     if (this.status === PENDING) {
         this.pending.push([callback, errback]);
+        console.log('this.pending: ',this.pending);
+        
     } else {
         // XXX
         enqueue(function () {
@@ -112,6 +117,4 @@ var ref = function (value) {
     };
 };
 
-exports={
-    MyPromise
-};
+exports.MyPromise = MyPromise;
