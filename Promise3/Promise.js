@@ -6,6 +6,9 @@ var PENDING = 0,
 FULFILLED = 1,
 REJECTED = 2;
 
+/**
+ * 实现Promise基本功能
+ */
 class MyPromise {
     constructor(onFulfilled){
         this.status = PENDING;
@@ -14,7 +17,11 @@ class MyPromise {
         this.resolve = this.resolve.bind(this);
         this.then = this.then.bind(this);
         this.reject = this.reject.bind(this);
-        onFulfilled&&onFulfilled(this.resolve,this.reject);      
+
+        // 对onFulfilled增加校验，提高鲁棒性
+        if (typeof onFulfilled === 'function') {
+            onFulfilled(this.resolve,this.reject);
+        }
     }
 
     resolve(value){
@@ -27,35 +34,53 @@ class MyPromise {
                  */
                 setTimeout(function(){
                     callback(this.value);
-                },1)                     
+                },1)                
             }
             this.status = FULFILLED;
         }      
     }
     /**
-     * 实现then的链式调用
-     * @param {func} _callback 
-     * @param {func} _errback 
+     * 注册resolve执行后调用的回调函数
+     * @param {func} _callback 注册的回调函数
+     * @param {func} _errback  注册的异常处理函数
      */
     then(_callback,_errback){
-        var _callback = _callback||function(){return this.value};
+
+        //创建待返回的Promise对象
         var newPromise = new MyPromise();
+
+        // 为_callback和_errback设置默认值
+        var _callback = _callback||function(){return this.value};
+        var _errback = _errback||function(){return this.value};
+
+        // 对_callback和_errback进行封装，这里是能够实现链式调用的关键
         var callback = function(value){
             newPromise.resolve(_callback(value))
         }
-        if (this.status === PENDING) {
-            this.pending.push([callback,_errback])          
-        }else{
-            callback(this.value)
+        var errback = function(value){
+            newPromise.reject(_errback(value))
         }
+
+        // 根据status的状态来进行处理
+        if (this.status === PENDING) {
+            // 注意，这里传入pending的是封装过的callback和errback
+            this.pending.push([callback,errback])
+        }else if(this.status === FULFILLED){
+            callback(this.value)
+        }else{
+            errback(this.value)
+        }
+
+        // 返回新的promise对象
         return newPromise;
     }
 
     reject(message){
         if (this.status === PENDING) {
+            this.value = message;
             for (var index = 0,length = this.pending; index < this.pending.length; index++) {
                 var errback = this.pending[index][1];
-                errback(message);                 
+                errback(this.value);                 
             }
             this.status = REJECTED;
         }
