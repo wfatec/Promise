@@ -34,7 +34,7 @@ class MyPromise {
     then(_callback,_errback){
         if (this.status === PENDING) {
             this.pending.push([_callback,_errback])
-        }else if(this.status === REJECTED){
+        }else if(this.status === FULFILLED){
             _callback(this.value)
         }else{
             _errback(this.value)

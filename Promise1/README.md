@@ -41,7 +41,7 @@ class MyPromise {
 then(_callback,_errback){
     if (this.status === PENDING) {
         this.pending.push([_callback,_errback])
-    }else if(this.status === REJECTED){
+    }else if(this.status === FULFILLED){
         _callback(this.value)
     }else{
         _errback(this.value)
@@ -51,7 +51,7 @@ then(_callback,_errback){
 ```
 
 ## resolve方法
-`resolve`方法的作用是输入一个参数value，并在status为pending状态时遍历pending数组中注册的callback函数，传入value并执行，最后将status专为fulfilled状态。
+`resolve`方法的作用是输入一个参数value，对属性value进行赋值，并在status为pending状态时遍历pending数组中注册的callback函数，传入value并执行，最后将status专为fulfilled状态。
 ```js
 resolve(value){
     if (this.status === PENDING) {
@@ -64,3 +64,42 @@ resolve(value){
     }      
 }
 ```
+
+## reject方法
+将错误信息作为参数message传入value属性，遍历penging中的errback方法并执行：
+```js
+reject(message){
+    if (this.status === PENDING) {
+        this.value = message;
+        for (var index = 0,length = this.pending; index < this.pending.length; index++) {
+            var errback = this.pending[index][1];
+            errback(this.value);                 
+        }
+        this.status = REJECTED;
+    }
+}
+```
+
+## 验证
+
+执行下列测试代码：
+```js
+var myPromiseResolve = new MyPromise((resolve,reject)=>{  
+	resolve('I am resolve!')
+}).then(
+	(value)=>{console.log('resolve: ',value)},
+	(message)=>{console.log('reject: ',message)}
+);
+
+// resolve:  I am resolve!
+
+var myPromiseReject = new MyPromise((resolve,reject)=>{  
+	reject('I am reject!')
+}).then(
+	(value)=>{console.log('resolve: ',value)},
+	(message)=>{console.log('reject: ',message)}
+);
+
+// reject:  I am reject!
+```
+结果符合我们的预期。
