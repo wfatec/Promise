@@ -6,9 +6,6 @@ var PENDING = 0,
 FULFILLED = 1,
 REJECTED = 2;
 
-/**
- * 实现Promise基本功能
- */
 class MyPromise {
     constructor(onFulfilled){
         this.status = PENDING;
@@ -17,7 +14,7 @@ class MyPromise {
         this.resolve = this.resolve.bind(this);
         this.then = this.then.bind(this);
         this.reject = this.reject.bind(this);
-        onFulfilled(this.resolve,this.reject);
+        onFulfilled&&onFulfilled(this.resolve,this.reject);
     }
 
     resolve(value){
@@ -30,24 +27,30 @@ class MyPromise {
             this.status = FULFILLED;
         }      
     }
-
+    /**
+     * 实现then的链式调用
+     * @param {func} _callback 
+     * @param {func} _errback 
+     */
     then(_callback,_errback){
-        if (this.status === PENDING) {
-            this.pending.push([_callback,_errback])
-        }else if(this.status === REJECTED){
-            _callback(this.value)
-        }else{
-            _errback(this.value)
+        var _callback = _callback||function(){return this.value};
+        var newPromise = new MyPromise();
+        var callback = function(value){
+            newPromise.resolve(_callback(value))
         }
-        
+        if (this.status === PENDING) {
+            this.pending.push([callback,_errback])          
+        }else{
+            callback(this.value)
+        }
+        return newPromise;
     }
 
     reject(message){
         if (this.status === PENDING) {
-            this.value = message;
             for (var index = 0,length = this.pending; index < this.pending.length; index++) {
                 var errback = this.pending[index][1];
-                errback(this.value);                 
+                errback(message);                 
             }
             this.status = REJECTED;
         }

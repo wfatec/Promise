@@ -34,20 +34,17 @@ class MyPromise {
     then(_callback,_errback){
         if (this.status === PENDING) {
             this.pending.push([_callback,_errback])
-        }else if(this.status === REJECTED){
-            _callback(this.value)
         }else{
-            _errback(this.value)
+            _callback(this.value)
         }
         
     }
 
     reject(message){
         if (this.status === PENDING) {
-            this.value = message;
             for (var index = 0,length = this.pending; index < this.pending.length; index++) {
                 var errback = this.pending[index][1];
-                errback(this.value);                 
+                errback(message);                 
             }
             this.status = REJECTED;
         }
