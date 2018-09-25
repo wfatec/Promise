@@ -1,8 +1,8 @@
-# 实现Promise的链式调用
+# README
 
 实现链式调用的关键就是then方法，首先物品们需要让它能够返回一个新的Promise对象，从而能够在这个返回的Promise对象上调用新的then方法，最终形成链式调用。
 
-```js
+```javascript
 then(_callback,_errback){
 
     //创建待返回的Promise对象
@@ -33,36 +33,37 @@ then(_callback,_errback){
 
 接下来测试一下我的的链式调用功能:
 
-```js
+```javascript
 var MyPromise = require('./Promise').MyPromise;
 
 var myPromiseResolve = new MyPromise((resolve,reject)=>{  
-	resolve('I am resolved!')
+    resolve('I am resolved!')
 }).then(
-	(value)=>{
-		console.log('resolve: ',value);
-		return 'I am also resolved!'
-	},
-	(message)=>{console.log('reject: ',message)}
+    (value)=>{
+        console.log('resolve: ',value);
+        return 'I am also resolved!'
+    },
+    (message)=>{console.log('reject: ',message)}
 ).then((value)=>{
-	console.log('resolve2: ',value)
+    console.log('resolve2: ',value)
 });
 
 var myPromiseReject = new MyPromise((resolve,reject)=>{  
-	reject('I am rejected!')
+    reject('I am rejected!')
 }).then(
-	(value)=>{console.log('resolve: ',value)},
-	(message)=>{
-		console.log('reject: ',message);
-		return 'I am also rejected!'
-	}
+    (value)=>{console.log('resolve: ',value)},
+    (message)=>{
+        console.log('reject: ',message);
+        return 'I am also rejected!'
+    }
 ).then(function(){},(err)=>{
-	console.log('reject2: ',err)
+    console.log('reject2: ',err)
 });
 ```
 
 执行结果为：
-```
+
+```text
 resolve:  I am resolved!
 resolve2:  I am also resolved!
 reject:  I am rejected!
@@ -70,3 +71,4 @@ reject2:  I am also rejected!
 ```
 
 完全符合预期
+
