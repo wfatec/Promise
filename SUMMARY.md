@@ -1,9 +1,9 @@
 # Table of contents
 
 * [Promise实现](README.md)
-* [The design of Promise by Q​](promise3.md)
-* [README](promise4.md)
-* [README](promise0.md)
-* [README](promise1.md)
-* [README](promise2.md)
+* [Promise设计思路--by Q](promise3.md)
+* [基础实现](promise4.md)
+* [链式调用](promise0.md)
+* [提高稳定性](promise1.md)
+* [传递Promise](promise2.md)
 
